@@ -34,7 +34,7 @@ public class Test1_3 {
         } catch (UnknownHostException ex) {
             Logger.getLogger(Test1_1.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Test1_1.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(Test1_1.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("Server not found!!!");
             System.exit(5);
         }  
