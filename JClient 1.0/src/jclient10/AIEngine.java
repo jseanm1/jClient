@@ -19,13 +19,14 @@ public class AIEngine {
      * terrain = 3 : water
      * terrain = 4 : tank
      * terrain = 5 : coin pile
+     * terrain = 6 : life pack
     */
     int ln, ht; //ln : x, ht : y
     int my_no;
     
     public String nextMove(String s){
         setParameter(s);
-        play();        
+               
         return nxtmv;
     }
     
@@ -155,10 +156,8 @@ public class AIEngine {
 //                }
 //            }
 //            System.out.print("\n");
-//        }
-        
-        
-        
+//        } 
+        nxtmv = " ";
     } 
     
     // Working on 27/7/2013 2338h
@@ -212,6 +211,7 @@ public class AIEngine {
         
         update_coin_piles();
         update_life_packs();
+        play();
     }
     
     //Working on 28/7/2013 0100h
@@ -251,7 +251,7 @@ public class AIEngine {
         lp.set_co(Integer.parseInt(temp[1].charAt(0)+""),Integer.parseInt(temp[1].charAt(2)+""));
         lp.life_time = Integer.parseInt(temp[2].substring(0,temp[2].length()-1));
         
-        terrain [lp.y][lp.x] = 5;
+        terrain [lp.y][lp.x] = 6;
         //System.out.println(lp.life_time);        
     }
     
@@ -268,15 +268,114 @@ public class AIEngine {
         }        
     }
     
+    //Have to implement
     private void play(){       
         if(players[my_no].is_shot==1){
             under_attack();
             players[my_no].is_shot=0;
         }
+        else{ //find the closest coinpile and go there
+            seek_coin_pile();
+        }
     }
     
+    //Have to implement
     private void under_attack(){
         //Identify shooter
         
+    }
+    
+    //Have to implement
+    private void seek_coin_pile(){
+        int[][] map = new int[ln][ht];
+        PathCost nxt;
+        
+        // A map with visitable cordinates = 0
+        for(int i=0;i<ln;i++){
+            for(int j=0;j<ht;j++){
+                if(terrain[i][j]==0|terrain[i][j]==5||terrain[i][j]==6)
+                    map[i][j]=0;
+                else
+                    map[i][j]=1;
+            }
+        }
+        nxt = seek(6,players[my_no].location[0],players[my_no].location[1],20,map);
+        if(nxt.path.equals("NO#")){
+            nxtmv = "SHOOT#";
+        }
+        else
+            nxtmv = nxt.path;
+    }
+    
+    private PathCost seek(int goal, int xx, int yy,int limit, int[][] map){
+        if(limit <= 0){
+            return new PathCost();
+        }
+        map[yy][xx] = 1;
+        PathCost[] nxt = new PathCost[5];
+        for(int i=0;i<5;i++){
+            nxt[i]= new PathCost();
+            nxt[i].cost=11;
+        }
+        
+        if(terrain[yy][xx]==goal){
+            nxt[0].cost = 0;
+            nxt[0].path = "NO#";
+        }
+        else{
+            if((yy-1)>=0 && map[yy-1][xx]==0){
+                if(players[my_no].direction==1){
+                    nxt[1].cost = seek(goal,xx,yy-1,limit-1,map).cost;
+                    nxt[1].path = "UP#";
+                }
+                
+                else{
+                    nxt[1].cost = seek(goal,xx,yy-1,limit-2,map).cost;
+                    nxt[1].path = "UP#";
+                }
+            }
+            if((xx+1)<ln && map[yy][xx+1]==0){
+                if(players[my_no].direction==2){
+                    nxt[2].cost = seek(goal,xx+1,yy,limit-1,map).cost;
+                    nxt[2].path = "RIGHT#";
+                }
+                else{
+                    nxt[2].cost = seek(goal,xx+1,yy,limit-2,map).cost;
+                    nxt[2].path = "RIGHT#";
+                }
+            }
+            if((yy+1)<ht && map[yy+1][xx]==0){
+                if(players[my_no].direction==3){
+                    nxt[3].cost = seek(goal,xx,yy+1,limit-1,map).cost;
+                    nxt[3].path = "DOWN#";
+                }
+                else{
+                    nxt[3].cost = seek(goal,xx,yy+1,limit-2,map).cost;
+                    nxt[3].path = "DOWN#";
+                }
+            }
+            if((xx-1)>=0 && map[yy][xx-1]==0){
+                if(players[my_no].direction==4){
+                    nxt[4].cost = seek(goal,xx-1,yy,limit-1,map).cost;
+                    nxt[4].path = "LEFT#";
+                }
+                else{
+                    nxt[4].cost = seek(goal,xx-1,yy,limit-2,map).cost; 
+                    nxt[4].path = "LEFT#";
+                }
+            }
+            
+        }
+        
+        for(int i=0;i<5;i++){
+            for(int j=0;j<4;j++){
+                if(nxt[j].cost>nxt[j+1].cost){
+                    PathCost temp = nxt[j];
+                    nxt[j] = nxt[j+1];
+                    nxt[j+1] = temp;
+                }
+            }
+        }
+        return nxt[0];
     }
 }

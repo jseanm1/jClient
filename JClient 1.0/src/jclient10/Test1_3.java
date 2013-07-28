@@ -41,7 +41,7 @@ public class Test1_3 {
     }
     
     public void play(){
-        String s, cmd;
+        String s, cmd=" ";
         int i=0;
         while(true){    
             try {

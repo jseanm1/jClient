@@ -12,6 +12,9 @@ public class CodeTest {
          s = "C:8,9:58511:1748#";
          AI.nextMove(s);       
          s = "L:9,1:2914#";
-         AI.nextMove(s);
-     }
+         AI.nextMove(s);        
+                     
+        
+     }     
+     
 }
