@@ -366,6 +366,9 @@ public class AIEngine {
         }
         else{
             System.out.println("ERROR!!!");
+            System.out.println("mv: "+mv+" loc: "+loc);
+            System.out.println(me.location[0]+","+me.location[1]);
+            System.out.println(mv-(mv/ln)+","+mv/ln);
             return "NO#";
         }
     }

@@ -77,8 +77,8 @@ public class Graph {
             if(dst[index]>dst[i])
                 index=i;
         }
-        System.out.println(index+" ");
-        int prnt = parent[((cp.get(index)).y)*ln+(cp.get(index)).x];
+        //System.out.println(index+" ");
+        int prnt = ((cp.get(index)).y)*ln+(cp.get(index)).x;
         while(distance[prnt]>0){
             prnt = parent[prnt];
         }
