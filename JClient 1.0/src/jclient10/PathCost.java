@@ -6,6 +6,6 @@ public class PathCost {
     
     public PathCost(){
         path = "NO#";
-        cost = 0;
+        cost = 101;
     }
 }

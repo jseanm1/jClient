@@ -41,7 +41,7 @@ public class Test1_3 {
     }
     
     public void play(){
-        String s, cmd=" ";
+        String s, cmd="NO#";
         int i=0;
         while(true){    
             try {
@@ -52,16 +52,16 @@ public class Test1_3 {
                 s = read.readLine();
                 //System.out.println(s); // do the job, I just print out the msg            
                 read.close();
-                
-                BufferedWriter write;
-                Socket serversoc = new Socket("127.0.0.1", 6000);
-                write = new BufferedWriter(new OutputStreamWriter(serversoc.getOutputStream()));
-                
                 cmd = AI.nextMove(s);
                 
-                write.write(cmd);
-                write.flush();
-                write.close();
+                if(!cmd.equals("NO#")){
+                    BufferedWriter write;
+                    Socket serversoc = new Socket("127.0.0.1", 6000);
+                    write = new BufferedWriter(new OutputStreamWriter(serversoc.getOutputStream()));
+                    write.write(cmd);
+                    write.flush();
+                    write.close();
+                }
             
             } catch (IOException ex) {
                 //Logger.getLogger(Test1_1.class.getName()).log(Level.SEVERE, null, ex);

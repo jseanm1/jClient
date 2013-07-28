@@ -12,6 +12,7 @@ public class AIEngine {
     Brick[] bricks;
     ArrayList <CoinPile> coinpiles;
     ArrayList <LifePack> lifepacks;
+    Graph g;
     /*
      * terrain = 0 : nothing
      * terrain = 1 : brick
@@ -25,8 +26,10 @@ public class AIEngine {
     int my_no;
     
     public String nextMove(String s){
+        // Default response is NO# 
+        nxtmv="NO#";
         setParameter(s);
-               
+                       
         return nxtmv;
     }
     
@@ -114,7 +117,7 @@ public class AIEngine {
                 x = Integer.parseInt(temp_brick[i].charAt(0)+"");
                 y = Integer.parseInt(temp_brick[i].charAt(2)+"");
                 bricks[i].set_co(x, y);
-                terrain[y][x] = 1; 
+                terrain[x][y] = 1; 
             }            
         }
         
@@ -125,7 +128,7 @@ public class AIEngine {
                 int x,y;
                 x = Integer.parseInt(temp_stone[i].charAt(0)+"");
                 y = Integer.parseInt(temp_stone[i].charAt(2)+"");                
-                terrain[y][x] = 2; 
+                terrain[x][y] = 2; 
             }
         }
         
@@ -136,15 +139,19 @@ public class AIEngine {
                 int x,y;
                 x = Integer.parseInt(temp_water[i].charAt(0)+"");
                 y = Integer.parseInt(temp_water[i].charAt(2)+"");
-                terrain[y][x] = 3; 
+                terrain[x][y] = 3; 
             }
         }
+        
+        //Create graph for shortest path
+        g = new Graph(ln,ht);
+        g.initiate(terrain);
         
 //        System.out.println("  0 1 2 3 4 5 6 7 8 9");
 //        for(int i=0;i<ht;i++){
 //            System.out.print(i+" ");
 //            for(int j=0;j<ln;j++){
-//                switch (terrain[i][j]){
+//                switch (terrain[j][i]){
 //                    case 0: System.out.print("N ");
 //                    break;
 //                    case 1: System.out.print("B ");
@@ -157,7 +164,7 @@ public class AIEngine {
 //            }
 //            System.out.print("\n");
 //        } 
-        nxtmv = " ";
+        nxtmv = "NO#";
     } 
     
     // Working on 27/7/2013 2338h
@@ -176,6 +183,7 @@ public class AIEngine {
             
 //            System.out.println("Player: "+players[i].player_no+" x,y: "+players[i].location[0]+","+players[i].location[1]+" dir: "+players[i].direction);
         }
+        nxtmv = "NO#";
         
     }
     
@@ -190,11 +198,11 @@ public class AIEngine {
             players[i].location[0] = Integer.parseInt(temp[i+1].charAt(3)+"");
             players[i].location[1] = Integer.parseInt(temp[i+1].charAt(5)+"");
             players[i].direction = Integer.parseInt(temp[i+1].charAt(7)+"");
-            players[i].is_shot = Integer.parseInt(temp[i+1].charAt(9)+"");
-            players[i].health = Integer.parseInt(temp[i+1].charAt(11)+"");
+            players[i].shot = Integer.parseInt(temp[i+1].charAt(9)+"");
+            players[i].set_health(Integer.parseInt(temp[i+1].charAt(11)+""));
             players[i].coins = Integer.parseInt(temp[i+1].charAt(13)+"");
             players[i].points = Integer.parseInt(temp[i+1].charAt(15)+"");            
-            terrain[players[i].location[1]][players[i].location[0]] = 4;
+            terrain[players[i].location[0]][players[i].location[1]] = 4;
         }
         
         //6,2,0;5,4,0;7,1,0;9,3,0;1,7,0;0,2,0;6,8,0;8,6,0;0,3,0#";
@@ -223,8 +231,8 @@ public class AIEngine {
         cp.set_co(Integer.parseInt(temp[1].charAt(0)+""),Integer.parseInt(temp[1].charAt(2)+""));
         cp.life_time = Integer.parseInt(temp[2]);
         cp.val = Integer.parseInt(temp[3].substring(0,temp[3].length()-1));
-        
-        terrain [cp.y][cp.x] = 5;
+        coinpiles.add(cp);
+        terrain [cp.x][cp.y] = 5;
 //        System.out.println(cp.life_time);
 //        System.out.println(cp.val);
     }
@@ -235,8 +243,9 @@ public class AIEngine {
             CoinPile cp = coinpiles.get(i);
             cp.life_time = cp.life_time-1000;
             if(cp.life_time<0){
-                terrain[cp.y][cp.x] = 0;
+                terrain[cp.x][cp.y] = 0;
                 coinpiles.remove(i);
+                System.out.println("Coin Pile vanished");
                 i--;
             }
         }
@@ -250,8 +259,8 @@ public class AIEngine {
         //L:9,1:2914#
         lp.set_co(Integer.parseInt(temp[1].charAt(0)+""),Integer.parseInt(temp[1].charAt(2)+""));
         lp.life_time = Integer.parseInt(temp[2].substring(0,temp[2].length()-1));
-        
-        terrain [lp.y][lp.x] = 6;
+        lifepacks.add(lp);
+        terrain [lp.x][lp.y] = 6;
         //System.out.println(lp.life_time);        
     }
     
@@ -261,121 +270,103 @@ public class AIEngine {
             LifePack lp = lifepacks.get(i);
             lp.life_time = lp.life_time-1000;
             if(lp.life_time<0){
-                terrain[lp.y][lp.x] = 0;
-                coinpiles.remove(i);
+                terrain[lp.x][lp.y] = 0;
+                lifepacks.remove(i);
+                System.out.println("Life Pack vanished");
                 i--;
             }
         }        
     }
     
     //Have to implement
-    private void play(){       
-        if(players[my_no].is_shot==1){
-            under_attack();
-            players[my_no].is_shot=0;
-        }
-        else{ //find the closest coinpile and go there
-            seek_coin_pile();
-        }
-    }
-    
-    //Have to implement
-    private void under_attack(){
-        //Identify shooter
-        
-    }
-    
-    //Have to implement
-    private void seek_coin_pile(){
-        int[][] map = new int[ln][ht];
-        PathCost nxt;
-        
-        // A map with visitable cordinates = 0
-        for(int i=0;i<ln;i++){
-            for(int j=0;j<ht;j++){
-                if(terrain[i][j]==0|terrain[i][j]==5||terrain[i][j]==6)
-                    map[i][j]=0;
-                else
-                    map[i][j]=1;
-            }
-        }
-        nxt = seek(6,players[my_no].location[0],players[my_no].location[1],20,map);
-        if(nxt.path.equals("NO#")){
+    private void play(){ 
+        System.out.println("PLAY!!!");
+        if(target_in_sight())
             nxtmv = "SHOOT#";
-        }
-        else
-            nxtmv = nxt.path;
-    }
-    
-    private PathCost seek(int goal, int xx, int yy,int limit, int[][] map){
-        if(limit <= 0){
-            return new PathCost();
-        }
-        map[yy][xx] = 1;
-        PathCost[] nxt = new PathCost[5];
-        for(int i=0;i<5;i++){
-            nxt[i]= new PathCost();
-            nxt[i].cost=11;
-        }
         
-        if(terrain[yy][xx]==goal){
-            nxt[0].cost = 0;
-            nxt[0].path = "NO#";
-        }
-        else{
-            if((yy-1)>=0 && map[yy-1][xx]==0){
-                if(players[my_no].direction==1){
-                    nxt[1].cost = seek(goal,xx,yy-1,limit-1,map).cost;
-                    nxt[1].path = "UP#";
-                }
-                
-                else{
-                    nxt[1].cost = seek(goal,xx,yy-1,limit-2,map).cost;
-                    nxt[1].path = "UP#";
-                }
-            }
-            if((xx+1)<ln && map[yy][xx+1]==0){
-                if(players[my_no].direction==2){
-                    nxt[2].cost = seek(goal,xx+1,yy,limit-1,map).cost;
-                    nxt[2].path = "RIGHT#";
-                }
-                else{
-                    nxt[2].cost = seek(goal,xx+1,yy,limit-2,map).cost;
-                    nxt[2].path = "RIGHT#";
-                }
-            }
-            if((yy+1)<ht && map[yy+1][xx]==0){
-                if(players[my_no].direction==3){
-                    nxt[3].cost = seek(goal,xx,yy+1,limit-1,map).cost;
-                    nxt[3].path = "DOWN#";
-                }
-                else{
-                    nxt[3].cost = seek(goal,xx,yy+1,limit-2,map).cost;
-                    nxt[3].path = "DOWN#";
-                }
-            }
-            if((xx-1)>=0 && map[yy][xx-1]==0){
-                if(players[my_no].direction==4){
-                    nxt[4].cost = seek(goal,xx-1,yy,limit-1,map).cost;
-                    nxt[4].path = "LEFT#";
-                }
-                else{
-                    nxt[4].cost = seek(goal,xx-1,yy,limit-2,map).cost; 
-                    nxt[4].path = "LEFT#";
-                }
-            }
+       /*else if(players[my_no].is_shot){
+           //Find who shot and hunt
+       }*/
+        
+        else if(coinpiles.size()>0){
+            System.out.println("Graph");
+            g.bfs(players[my_no].location[0],players[my_no].location[1]);
+            int mv = g.find_shortest_path(coinpiles);
+            nxtmv = move(mv);
             
         }
-        
-        for(int i=0;i<5;i++){
-            for(int j=0;j<4;j++){
-                if(nxt[j].cost>nxt[j+1].cost){
-                    PathCost temp = nxt[j];
-                    nxt[j] = nxt[j+1];
-                    nxt[j+1] = temp;
+            
+    }
+    
+    private boolean target_in_sight(){
+        boolean in_sight = false;
+        Player me = players[my_no];
+        switch(me.direction){
+            case 0:
+                for(int i=me.location[1]-1;i>=0;i--){
+                    if(terrain[me.location[0]][i]==1||terrain[me.location[0]][i]==2)
+                        break;
+                    if(terrain[me.location[0]][i]==4){
+                        in_sight = true;
+                        break;
+                    }
                 }
-            }
+                break;
+            case 1:
+                for(int i=me.location[0]+1;i<ln;i++){
+                    if(terrain[i][me.location[1]]==1||terrain[i][me.location[1]]==2)
+                        break;
+                    if(terrain[i][me.location[1]]==4){
+                        in_sight = true;
+                        break;
+                    }
+                }
+                break;
+            case 2:
+                for(int i=me.location[1]+1;i<ht;i++){
+                    if(terrain[me.location[0]][i]==1||terrain[me.location[0]][i]==2)
+                        break;
+                    if(terrain[me.location[0]][i]==4){
+                        in_sight = true;
+                        break;
+                    }
+                }
+            case 3:
+               for(int i=me.location[0]-1;i>=0;i--){
+                    if(terrain[me.location[i]][1]==1||terrain[me.location[i]][1]==2)
+                        break;
+                    if(terrain[me.location[i]][1]==4){
+                        in_sight = true;
+                        break;
+                    }
+                } 
         }
-        return nxt[0];
+        return in_sight;
+    }
+    
+    private String move(int mv){
+        Player me = players[my_no];
+        int loc = me.location[1]*ln+me.location[0];
+        int xx,yy;
+        yy = mv/ln;
+        xx = mv%ln;
+        
+        if(g.adj_mat[mv][loc]){
+            if((mv/ln)<(loc/ln)){
+                return "UP#";                
+            }
+            else if((mv/ln)>(loc/ln)){
+                return "DOWN#";
+            }
+            else if(mv<loc){
+                return "LEFT#";
+            }
+            else
+                return "RIGHT#";
+        }
+        else{
+            System.out.println("ERROR!!!");
+            return "NO#";
+        }
     }
 }
