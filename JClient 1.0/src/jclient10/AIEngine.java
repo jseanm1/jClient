@@ -26,6 +26,8 @@ public class AIEngine {
     int my_no;
     
     public String nextMove(String s){
+        //Take # out of the string
+        s = s.substring(0, s.length()-1);
         // Default response is NO# 
         nxtmv="NO#";
         setParameter(s);
@@ -84,7 +86,7 @@ public class AIEngine {
     private void initialize(String s){
         System.out.println("Initializing");
         
-        ln = ht = 10;
+        ln = ht = 20;
         coinpiles = new ArrayList<CoinPile>();
         lifepacks = new ArrayList<LifePack>();
         
@@ -106,64 +108,85 @@ public class AIEngine {
 //        }
         
         terrain = new int[ln][ht];
+        System.out.println("Terrain length: "+terrain.length);
         
         //Set bricks in terrain
+        try{
         {
             String[] temp_brick = temp[2].split(";");
             bricks = new Brick[temp_brick.length];
             for(int i=0;i<temp_brick.length;i++){
                 bricks[i] = new Brick();
                 int x,y;
-                x = Integer.parseInt(temp_brick[i].charAt(0)+"");
-                y = Integer.parseInt(temp_brick[i].charAt(2)+"");
+                String[] temp_co = temp_brick[i].split(",");
+                x = Integer.parseInt(temp_co[0]);
+                y = Integer.parseInt(temp_co[1]); 
                 bricks[i].set_co(x, y);
-                terrain[x][y] = 1; 
+                terrain[x][y] = 1;                 
             }            
+        }}catch(Exception e){
+            System.out.println(e);
+            System.out.println("At set bricks in terrain");
         }
         
         //Set stones in terrain
+        try{
         {
             String[] temp_stone = temp[3].split(";");
             for(int i=0;i<temp_stone.length;i++){
                 int x,y;
-                x = Integer.parseInt(temp_stone[i].charAt(0)+"");
-                y = Integer.parseInt(temp_stone[i].charAt(2)+"");                
+                String[] temp_co = temp_stone[i].split(",");
+                x = Integer.parseInt(temp_co[0]);
+                y = Integer.parseInt(temp_co[1]);                
                 terrain[x][y] = 2; 
             }
+        }}catch(Exception e){
+            System.out.println(e);
+            System.out.println("At set stones in terrain");
         }
         
         //Set water in terrain
+        try{
         {
             String[] temp_water = temp[4].split(";");
             for(int i=0;i<temp_water.length;i++){
                 int x,y;
-                x = Integer.parseInt(temp_water[i].charAt(0)+"");
-                y = Integer.parseInt(temp_water[i].charAt(2)+"");
+                String[] temp_co = temp_water[i].split(",");
+                x = Integer.parseInt(temp_co[0]);
+                y = Integer.parseInt(temp_co[1]);
                 terrain[x][y] = 3; 
             }
+        }}catch(Exception e){
+            System.out.println(e);
+            System.out.println("At set water in terrain");
         }
         
         //Create graph for shortest path
+        try{
         g = new Graph(ln,ht);
         g.initiate(terrain);
+        }catch(Exception e){
+            System.out.println("Error with graph initiation");
+            nxtmv = "NO#";
+        }
         
-//        System.out.println("  0 1 2 3 4 5 6 7 8 9");
-//        for(int i=0;i<ht;i++){
-//            System.out.print(i+" ");
-//            for(int j=0;j<ln;j++){
-//                switch (terrain[j][i]){
-//                    case 0: System.out.print("N ");
-//                    break;
-//                    case 1: System.out.print("B ");
-//                    break;
-//                    case 2:System.out.print("S ");
-//                    break;
-//                    case 3:System.out.print("W ");
-//                    break;                    
-//                }
-//            }
-//            System.out.print("\n");
-//        } 
+        System.out.println("  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9");
+        for(int i=0;i<ht;i++){
+            System.out.print(i+" ");
+            for(int j=0;j<ln;j++){
+                switch (terrain[j][i]){
+                    case 0: System.out.print("N ");
+                    break;
+                    case 1: System.out.print("B ");
+                    break;
+                    case 2:System.out.print("S ");
+                    break;
+                    case 3:System.out.print("W ");
+                    break;                    
+                }
+            }
+            System.out.print("\n");
+        } 
         nxtmv = "NO#";
     } 
     
@@ -175,11 +198,13 @@ public class AIEngine {
         
         for(int i=0;i<players.length;i++){
             players[i] = new Player();
+            String[] temp_plyr = temp[i+1].split(";");
+            String[] temp_co = temp_plyr[1].split(",");
 //            P<num>;< player location  x>,< player location  y>;<Direction>
-            players[i].player_no = Integer.parseInt(temp[i+1].charAt(1)+"");
-            players[i].location[0] = Integer.parseInt(temp[i+1].charAt(3)+"");
-            players[i].location[1] = Integer.parseInt(temp[i+1].charAt(5)+"");
-            players[i].direction = Integer.parseInt(temp[i+1].charAt(7)+"");
+            players[i].player_no = Integer.parseInt(temp_plyr[0].charAt(1)+"");
+            players[i].location[0] = Integer.parseInt(temp_co[0]);
+            players[i].location[1] = Integer.parseInt(temp_co[1]);
+            players[i].direction = Integer.parseInt(temp_plyr[2]);
             
 //            System.out.println("Player: "+players[i].player_no+" x,y: "+players[i].location[0]+","+players[i].location[1]+" dir: "+players[i].direction);
         }
@@ -195,13 +220,15 @@ public class AIEngine {
         //P0;0,0;0;0;100;0;0
         //Assume player details come orderly everytime
         for(int i=0;i<players.length;i++){
-            players[i].location[0] = Integer.parseInt(temp[i+1].charAt(3)+"");
-            players[i].location[1] = Integer.parseInt(temp[i+1].charAt(5)+"");
-            players[i].direction = Integer.parseInt(temp[i+1].charAt(7)+"");
-            players[i].shot = Integer.parseInt(temp[i+1].charAt(9)+"");
-            players[i].set_health(Integer.parseInt(temp[i+1].charAt(11)+""));
-            players[i].coins = Integer.parseInt(temp[i+1].charAt(13)+"");
-            players[i].points = Integer.parseInt(temp[i+1].charAt(15)+"");            
+            String[] temp_plyr = temp[i+1].split(";");
+            String[] temp_co = temp_plyr[1].split(",");
+            players[i].location[0] = Integer.parseInt(temp_co[0]);
+            players[i].location[1] = Integer.parseInt(temp_co[1]);
+            players[i].direction = Integer.parseInt(temp_plyr[2]);
+            players[i].shot = Integer.parseInt(temp_plyr[3]);
+            players[i].set_health(Integer.parseInt(temp_plyr[4]));
+            players[i].coins = Integer.parseInt(temp_plyr[5]);
+            players[i].points = Integer.parseInt(temp_plyr[6]);            
             terrain[players[i].location[0]][players[i].location[1]] = 4;
         }
         
@@ -210,14 +237,17 @@ public class AIEngine {
 //        System.out.println(temp[temp.length-1]);
         String[] temp2 = temp[temp.length-1].split(";");
         for(int i=0;i<temp2.length;i++){
-            if(bricks[i].x==Integer.parseInt(temp2[i].charAt(0)+"")&&bricks[i].y==Integer.parseInt(temp2[i].charAt(2)+"")){
-                bricks[i].dmg = Integer.parseInt(temp2[i].charAt(4)+"");    
+            String[] temp_co = temp2[i].split(",");
+            if(bricks[i].x==Integer.parseInt(temp_co[0])&&bricks[i].y==Integer.parseInt(temp_co[1])){
+                bricks[i].dmg = Integer.parseInt(temp_co[2]);    
             }
-            else
-                System.out.println("ERROR!!!");
+            else{
+                System.out.println("ERROR with global updates!!!");
+                System.out.println(bricks[i].x+","+bricks[i].y+"!="+temp_co[0]+","+temp_co[1]);
+            }
         }
         
-        //check_cp_lp_acq();
+        check_cp_lp_acq();
         update_coin_piles();
         update_life_packs();
         play();
@@ -228,10 +258,12 @@ public class AIEngine {
         System.out.println("New coin pile added");
         CoinPile cp = new CoinPile();
         String[] temp = s.split(":");
+        String[] temp_co = temp[1].split(",");
         //C:8,9:58511:1748#
-        cp.set_co(Integer.parseInt(temp[1].charAt(0)+""),Integer.parseInt(temp[1].charAt(2)+""));
+        System.out.println("Coinpile: "+temp_co[0]+","+temp_co[1]);
+        cp.set_co(Integer.parseInt(temp_co[0]),Integer.parseInt(temp_co[1]));
         cp.life_time = Integer.parseInt(temp[2]);
-        cp.val = Integer.parseInt(temp[3].substring(0,temp[3].length()-1));
+        cp.val = Integer.parseInt(temp[3]);
         coinpiles.add(cp);
         terrain [cp.x][cp.y] = 5;
 //        System.out.println(cp.life_time);
@@ -257,9 +289,10 @@ public class AIEngine {
         System.out.println("New life pack added");
         LifePack lp = new LifePack();
         String[] temp = s.split(":");
+        String[] temp_co = temp[1].split(",");
         //L:9,1:2914#
-        lp.set_co(Integer.parseInt(temp[1].charAt(0)+""),Integer.parseInt(temp[1].charAt(2)+""));
-        lp.life_time = Integer.parseInt(temp[2].substring(0,temp[2].length()-1));
+        lp.set_co(Integer.parseInt(temp_co[0]),Integer.parseInt(temp_co[1]));
+        lp.life_time = Integer.parseInt(temp[2]);
         lifepacks.add(lp);
         terrain [lp.x][lp.y] = 6;
         //System.out.println(lp.life_time);        
@@ -308,30 +341,36 @@ public class AIEngine {
     //Have to implement
     private void play(){ 
         if(false);
-       /* System.out.println("PLAY!!!");
-        if(target_in_sight())
+        //System.out.println("PLAY!!!");
+        /*if(target_in_sight()){
             nxtmv = "SHOOT#";
+            System.out.println(nxtmv);
+        }*/
+        
         
        /*else if(players[my_no].is_shot){
            //Find who shot and hunt
        }*/
         
-        
-        /*else if(coinpiles.size()>0){
+        /*else if(players[my_no].health < 60 && lifepacks.size()>0){
+            g.bfs(players[my_no].location[0], players[my_no].location[1]);
+            int mv = g.find_shortest_path_lp(lifepacks);
+            nxtmv = move_lp(mv);
+            System.out.println(nxtmv);
+        }*/        
+        else if(coinpiles.size()>0){
             //System.out.println("Graph");
             g.bfs(players[my_no].location[0],players[my_no].location[1]);
             int mv = g.find_shortest_path_cp(coinpiles);
             nxtmv = move_cp(mv);    
             System.out.println(nxtmv);
-        }*/
+        }
         else if(lifepacks.size()>0){
             g.bfs(players[my_no].location[0], players[my_no].location[1]);
             int mv = g.find_shortest_path_lp(lifepacks);
             nxtmv = move_lp(mv);
             System.out.println(nxtmv);
         }
-        
-            
     }
     
     private boolean target_in_sight(){

@@ -72,7 +72,8 @@ public class Game {
                 }
             
             } catch (IOException ex) {
-                //System.out.println("IO Exception: "+ex);
+//                System.out.println("IO Exception: "+ex);
+//                System.out.println("Exception caught at Game.play()");
             }
             i++;
         }
