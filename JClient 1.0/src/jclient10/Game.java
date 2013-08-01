@@ -54,7 +54,11 @@ public class Game {
                 read.close();
                 
                 // Pass the update to the AIEngine and get the response
-                cmd = AI.nextMove(s);
+                try{
+                    cmd = AI.nextMove(s);
+                }catch(Exception e){
+                    cmd = "NO#";
+                }
                 
                 // If there is a message to server, send it
                 if(!cmd.equals("NO#")){

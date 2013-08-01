@@ -33,15 +33,18 @@ public class Graph {
                         adj_mat[j*ln+i][(j-1)*ln+i] = true;
                     if(j<ht-1&&arr[i][j+1]==0)
                         adj_mat[j*ln+i][(j+1)*ln+i] = true;
-                }
-                visited[j*ln+i] = 0;
-                parent[j*ln+i] = -1;
-                distance[j*ln+i] = 0;
+                }                
             }
         }
     }
     
     public void bfs(int x,int y){
+        // Reset arrays
+        for(int i=0;i<ln*ht;i++){
+            visited[i] = 0;
+            parent[i] = -1;
+            distance[i] = 0;
+        }
         Queue <Integer> q = new LinkedList <Integer>();
         int s = y*ln+x;
         visited[s] = 0;

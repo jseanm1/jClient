@@ -280,7 +280,7 @@ public class AIEngine {
     
     //Have to implement
     private void play(){ 
-        System.out.println("PLAY!!!");
+        /*System.out.println("PLAY!!!");
         if(target_in_sight())
             nxtmv = "SHOOT#";
         
@@ -288,13 +288,15 @@ public class AIEngine {
            //Find who shot and hunt
        }*/
         
-        else if(coinpiles.size()>0){
+        
+        /*else*/ if(coinpiles.size()>0){
             System.out.println("Graph");
             g.bfs(players[my_no].location[0],players[my_no].location[1]);
             int mv = g.find_shortest_path(coinpiles);
-            nxtmv = move(mv);
-            
+            nxtmv = move(mv);    
+            System.out.println(nxtmv);
         }
+        
             
     }
     
@@ -363,6 +365,17 @@ public class AIEngine {
             }
             else
                 return "RIGHT#";
+        }
+        else if(mv == loc){
+            for(int i=0;i<coinpiles.size();i++){
+                CoinPile cp = coinpiles.get(i);
+                if(cp.x==xx && cp.y==yy){
+                    coinpiles.remove(i);
+                    System.out.println("Coin Pile Acquired");
+                    break;
+                }
+            }
+            return "NO#";
         }
         else{
             System.out.println("ERROR!!!");

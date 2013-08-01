@@ -45,7 +45,7 @@ public class Test1_2 {
                 System.out.println(s); // do the job, I just print out the msg            
                 read.close();
                 
-                BufferedWriter write;
+                /*BufferedWriter write;
                 Socket serversoc = new Socket("127.0.0.1", 6000);
                 write = new BufferedWriter(new OutputStreamWriter(serversoc.getOutputStream()));
                 
@@ -53,7 +53,7 @@ public class Test1_2 {
                 //cmd = engine.nextMove(s);
                 write.write(cmd);
                 write.flush();
-                write.close();
+                write.close();*/
             
             } catch (IOException ex) {
                 //Logger.getLogger(Test1_1.class.getName()).log(Level.SEVERE, null, ex);
