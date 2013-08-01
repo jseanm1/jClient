@@ -217,6 +217,7 @@ public class AIEngine {
                 System.out.println("ERROR!!!");
         }
         
+        //check_cp_lp_acq();
         update_coin_piles();
         update_life_packs();
         play();
@@ -278,9 +279,36 @@ public class AIEngine {
         }        
     }
     
+    private void check_cp_lp_acq(){
+        int xx,yy;
+        CoinPile cp;
+        LifePack lp;
+        boolean changed = false;
+        for(int i=0;i<players.length;i++){
+            if(i==my_no) continue;
+            else{
+                xx = players[i].location[0];
+                yy = players[i].location[1];
+                for(int j=0;j<coinpiles.size();j++){
+                    cp = coinpiles.get(j);
+                    lp = lifepacks.get(j);
+                    if(cp.x==xx && cp.y == yy){
+                        coinpiles.remove(j); 
+                        changed = true;
+                    }
+                    if(lp.x==xx && lp.y == yy){
+                        lifepacks.remove(j); 
+                        changed = true;
+                    }
+                    if(changed) j--;
+                }
+            }
+        }
+    }
     //Have to implement
     private void play(){ 
-        /*System.out.println("PLAY!!!");
+        if(false);
+       /* System.out.println("PLAY!!!");
         if(target_in_sight())
             nxtmv = "SHOOT#";
         
@@ -289,11 +317,17 @@ public class AIEngine {
        }*/
         
         
-        /*else*/ if(coinpiles.size()>0){
-            System.out.println("Graph");
+        /*else if(coinpiles.size()>0){
+            //System.out.println("Graph");
             g.bfs(players[my_no].location[0],players[my_no].location[1]);
-            int mv = g.find_shortest_path(coinpiles);
-            nxtmv = move(mv);    
+            int mv = g.find_shortest_path_cp(coinpiles);
+            nxtmv = move_cp(mv);    
+            System.out.println(nxtmv);
+        }*/
+        else if(lifepacks.size()>0){
+            g.bfs(players[my_no].location[0], players[my_no].location[1]);
+            int mv = g.find_shortest_path_lp(lifepacks);
+            nxtmv = move_lp(mv);
             System.out.println(nxtmv);
         }
         
@@ -346,7 +380,8 @@ public class AIEngine {
         return in_sight;
     }
     
-    private String move(int mv){
+    //Working
+    private String move_cp(int mv){
         Player me = players[my_no];
         int loc = me.location[1]*ln+me.location[0];
         int xx,yy;
@@ -367,11 +402,53 @@ public class AIEngine {
                 return "RIGHT#";
         }
         else if(mv == loc){
+            //On top of the coinpile
             for(int i=0;i<coinpiles.size();i++){
                 CoinPile cp = coinpiles.get(i);
                 if(cp.x==xx && cp.y==yy){
                     coinpiles.remove(i);
                     System.out.println("Coin Pile Acquired");
+                    break;
+                }
+            }
+            return "NO#";
+        }
+        else{
+            System.out.println("ERROR!!!");
+            System.out.println("mv: "+mv+" loc: "+loc);
+            System.out.println(me.location[0]+","+me.location[1]);
+            System.out.println(mv-(mv/ln)+","+mv/ln);
+            return "NO#";
+        }
+    }
+    
+    private String move_lp(int mv){
+        Player me = players[my_no];
+        int loc = me.location[1]*ln+me.location[0];
+        int xx,yy;
+        yy = mv/ln;
+        xx = mv%ln;
+        
+        if(g.adj_mat[mv][loc]){
+            if((mv/ln)<(loc/ln)){
+                return "UP#";                
+            }
+            else if((mv/ln)>(loc/ln)){
+                return "DOWN#";
+            }
+            else if(mv<loc){
+                return "LEFT#";
+            }
+            else
+                return "RIGHT#";
+        }
+        else if(mv == loc){
+            //On top of the coinpile
+            for(int i=0;i<coinpiles.size();i++){
+                LifePack lp = lifepacks.get(i);
+                if(lp.x==xx && lp.y==yy){
+                    lifepacks.remove(i);
+                    System.out.println("Life Pack Acquired");
                     break;
                 }
             }

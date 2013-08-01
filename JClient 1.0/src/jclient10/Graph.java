@@ -67,7 +67,7 @@ public class Graph {
         }
     }
     
-    public int find_shortest_path(ArrayList<CoinPile> cp){
+    public int find_shortest_path_cp(ArrayList<CoinPile> cp){
         int index=0;
         int[] dst = new int[cp.size()];
         
@@ -82,6 +82,27 @@ public class Graph {
         }
         //System.out.println(index+" ");
         int prnt = ((cp.get(index)).y)*ln+(cp.get(index)).x;
+        while(distance[prnt]>0){
+            prnt = parent[prnt];
+        }
+        return prnt;
+    }
+    
+    public int find_shortest_path_lp(ArrayList<LifePack> lp){
+        int index=0;
+        int[] dst = new int[lp.size()];
+        
+        for(int i=0;i<lp.size();i++){
+            LifePack l = lp.get(i);
+            dst[i] = distance[l.y*ln+l.x];
+        }
+        
+        for(int i=0;i<lp.size();i++){
+            if(dst[index]>dst[i])
+                index=i;
+        }
+        //System.out.println(index+" ");
+        int prnt = ((lp.get(index)).y)*ln+(lp.get(index)).x;
         while(distance[prnt]>0){
             prnt = parent[prnt];
         }
