@@ -36,29 +36,43 @@ public class AIEngine {
     }
     
     private void setParameter(String s){
-        if(s.equals("OBSTACLE#")){
-            
+        if(s.equals("OBSTACLE")){
+            System.out.println("OBSTACLE HIT!!!");
+            nxtmv = "NO#";
         }
-        else if(s.equals("CELL_OCCUPIED#")){
-            
+        else if(s.equals("CELL_OCCUPIED")){
+            System.out.println("CELL OCCUPIED. SHOOTING!!!");
+            nxtmv = "SHOOT#";
         }
-        else if(s.equals("DEAD#")){
-            
+        else if(s.equals("DEAD")){
+            System.out.println("FATAL CONDITION!!!");
+                System.out.println("Player has been killed in action");
+                System.out.println("Exiting game");
+                System.exit(0);
         }
-        else if(s.equals("TOO_QUICK#")){
-            
+        else if(s.equals("TOO_QUICK")){
+            //No problem, let the message be sent again
         }
-        else if(s.equals("INVALID_CELL#")){
-            
+        else if(s.equals("INVALID_CELL")){
+            System.out.println("ERROR: INVALID CELL");
+            System.out.println("Recoverable error");
+            nxtmv = "NO#";
         }
-        else if(s.equals("GAME_HAS_FINISHED#")){
-            
+        else if(s.equals("GAME_HAS_FINISHED")){
+            System.out.println("FATAL ERROR!!!");
+            System.out.println("GAME HAS FINISHED");
+            System.out.println("Immidiate Exit");
+            System.exit(3);
         }
-        else if(s.equals("GAME_NOT_STARTED_YET#")){
-            
+        else if(s.equals("GAME_NOT_STARTED_YET")){
+            System.out.println("GAME HAS NOT STARTED YET!!!");
+            //Ok, let's waste some time until game starts
         }
-        else if(s.equals("NOT_A_VALID_CONTESTANT#")){
-            
+        else if(s.equals("NOT_A_VALID_CONTESTANT")){
+            System.out.println("FATAL ERROR!!!");
+            System.out.println("NOT A VALID CONTESTANT");
+            System.out.println("Immidiate Exit");
+            System.exit(2);
         }
         else if(s.charAt(0)=='I'){
             //Initialize the game
@@ -170,23 +184,23 @@ public class AIEngine {
             nxtmv = "NO#";
         }
         
-        System.out.println("  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9");
-        for(int i=0;i<ht;i++){
-            System.out.print(i+" ");
-            for(int j=0;j<ln;j++){
-                switch (terrain[j][i]){
-                    case 0: System.out.print("N ");
-                    break;
-                    case 1: System.out.print("B ");
-                    break;
-                    case 2:System.out.print("S ");
-                    break;
-                    case 3:System.out.print("W ");
-                    break;                    
-                }
-            }
-            System.out.print("\n");
-        } 
+//        System.out.println("  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9");
+//        for(int i=0;i<ht;i++){
+//            System.out.print(i+" ");
+//            for(int j=0;j<ln;j++){
+//                switch (terrain[j][i]){
+//                    case 0: System.out.print("N ");
+//                    break;
+//                    case 1: System.out.print("B ");
+//                    break;
+//                    case 2:System.out.print("S ");
+//                    break;
+//                    case 3:System.out.print("W ");
+//                    break;                    
+//                }
+//            }
+//            System.out.print("\n");
+//        } 
         nxtmv = "NO#";
     } 
     
@@ -219,6 +233,15 @@ public class AIEngine {
         
         //P0;0,0;0;0;100;0;0
         //Assume player details come orderly everytime
+        
+        //Before initializing player info, terrain has to be cleared of all tanks
+        for(int i=0;i<ln;i++){
+            for(int j=0;j<ht;j++){
+                if(terrain[i][j]==4){
+                    terrain[i][j]=0;
+                }
+            }
+        }
         for(int i=0;i<players.length;i++){
             String[] temp_plyr = temp[i+1].split(";");
             String[] temp_co = temp_plyr[1].split(",");
@@ -231,6 +254,7 @@ public class AIEngine {
             players[i].points = Integer.parseInt(temp_plyr[6]);            
             terrain[players[i].location[0]][players[i].location[1]] = 4;
         }
+        //System.out.println("Players initialized");
         
         //6,2,0;5,4,0;7,1,0;9,3,0;1,7,0;0,2,0;6,8,0;8,6,0;0,3,0#";
         //Assume brick details come orderly everytime
@@ -246,11 +270,31 @@ public class AIEngine {
                 System.out.println(bricks[i].x+","+bricks[i].y+"!="+temp_co[0]+","+temp_co[1]);
             }
         }
-        
-        check_cp_lp_acq();
-        update_coin_piles();
-        update_life_packs();
+        //System.out.println("Bricks initialized");
+        try{
+            check_cp_lp_acq();
+//            System.out.println("cp_lp checked");
+        }catch(Exception e){
+            System.out.println("Exception at check acquired "+e);
+        }
+        try{
+            update_coin_piles();
+//            System.out.println("coin piles updated");
+        }catch(Exception e){
+            System.out.println("Exception at update cp "+e);
+        }
+        try{
+            update_life_packs();
+//            System.out.println("life packs updated");
+        }catch(Exception e){
+            System.out.println("Exception at uplate lp "+e);
+        }
+        try{
         play();
+                System.out.println("played");
+        }catch(Exception e){
+            System.out.println("Exception at global_update.play "+e);
+        }
     }
     
     //Working on 28/7/2013 0100h
@@ -260,7 +304,7 @@ public class AIEngine {
         String[] temp = s.split(":");
         String[] temp_co = temp[1].split(",");
         //C:8,9:58511:1748#
-        System.out.println("Coinpile: "+temp_co[0]+","+temp_co[1]);
+        //System.out.println("Coinpile: "+temp_co[0]+","+temp_co[1]);
         cp.set_co(Integer.parseInt(temp_co[0]),Integer.parseInt(temp_co[1]));
         cp.life_time = Integer.parseInt(temp[2]);
         cp.val = Integer.parseInt(temp[3]);
@@ -317,18 +361,25 @@ public class AIEngine {
         CoinPile cp;
         LifePack lp;
         boolean changed = false;
+        System.out.println(players.length);
         for(int i=0;i<players.length;i++){
             if(i==my_no) continue;
             else{
                 xx = players[i].location[0];
                 yy = players[i].location[1];
                 for(int j=0;j<coinpiles.size();j++){
+                    changed = false;
                     cp = coinpiles.get(j);
-                    lp = lifepacks.get(j);
                     if(cp.x==xx && cp.y == yy){
                         coinpiles.remove(j); 
                         changed = true;
-                    }
+                    }                    
+                    if(changed) j--;
+                }
+                
+                for(int j=0;j<lifepacks.size();j++){
+                    changed = false;
+                    lp = lifepacks.get(j);
                     if(lp.x==xx && lp.y == yy){
                         lifepacks.remove(j); 
                         changed = true;
@@ -359,10 +410,29 @@ public class AIEngine {
             System.out.println(nxtmv);
         }*/        
         else if(coinpiles.size()>0){
+            int mv=0;
             //System.out.println("Graph");
-            g.bfs(players[my_no].location[0],players[my_no].location[1]);
-            int mv = g.find_shortest_path_cp(coinpiles);
-            nxtmv = move_cp(mv);    
+            try{
+                g.bfs(players[my_no].location[0],players[my_no].location[1]);
+                //System.out.println("g.bfs");
+            }catch(Exception e){
+                System.out.println("Exception in g.bfs "+e);
+                nxtmv = "NO#";
+            }
+            try{
+                mv = g.find_shortest_path_cp(coinpiles);
+                //System.out.println("g.shortest path");
+            }catch(Exception e){
+                System.out.println("Exception in shortest path "+e);
+                nxtmv = "NO#";
+            }
+            try{
+                nxtmv = move_cp(mv);
+                //System.out.println("nxtmv = mv");
+            }catch(Exception e){
+                System.out.println("Exception in move_cp "+e);
+                nxtmv = "NO#";
+            }
             System.out.println(nxtmv);
         }
         else if(lifepacks.size()>0){

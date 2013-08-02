@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,11 +53,13 @@ public class Game {
                 read = new BufferedReader(new InputStreamReader(clientsoc.getInputStream()));
                 s = read.readLine();
                 read.close();
+                System.out.println(s);
                 
                 // Pass the update to the AIEngine and get the response
                 try{
                     cmd = AI.nextMove(s);
                 }catch(Exception e){
+                    System.out.println("Exception caught at Game.cmd=AI.nxtmv "+e);
                     cmd = "NO#";
                 }
                 
@@ -74,8 +77,11 @@ public class Game {
             } catch (IOException ex) {
 //                System.out.println("IO Exception: "+ex);
 //                System.out.println("Exception caught at Game.play()");
+                
             }
+           
             i++;
+            if(i==3000) i=0;
         }
     }
 }

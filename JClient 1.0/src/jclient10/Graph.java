@@ -40,6 +40,7 @@ public class Graph {
     
     public void bfs(int x,int y){
         // Reset arrays
+        //System.out.println("bfs");
         for(int i=0;i<ln*ht;i++){
             visited[i] = 0;
             parent[i] = -1;
@@ -64,7 +65,7 @@ public class Graph {
                 }
             }
             visited[u]=2;
-        }
+        }        
     }
     
     public int find_shortest_path_cp(ArrayList<CoinPile> cp){
