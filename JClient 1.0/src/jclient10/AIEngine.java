@@ -243,6 +243,8 @@ public class AIEngine {
             }
         }
         for(int i=0;i<players.length;i++){
+            if(players[i].is_dead) continue;
+            
             String[] temp_plyr = temp[i+1].split(";");
             String[] temp_co = temp_plyr[1].split(",");
             players[i].location[0] = Integer.parseInt(temp_co[0]);
@@ -253,6 +255,20 @@ public class AIEngine {
             players[i].coins = Integer.parseInt(temp_plyr[5]);
             players[i].points = Integer.parseInt(temp_plyr[6]);            
             terrain[players[i].location[0]][players[i].location[1]] = 4;
+            
+            if(players[i].health==0){
+                players[i].is_dead = true;
+                terrain[players[i].location[0]][players[i].location[1]] = 0;
+                //"C:8,9:58511:1748#"
+                try{
+                String str = "C".concat(":").concat(String.valueOf(players[i].location[0])).concat(",")
+                        .concat(String.valueOf(players[i].location[1])).concat(":").
+                        concat("99999999").concat(":").concat(String.valueOf(players[i].coins));
+                new_coin_pile(str);
+                }catch(Exception e){
+                    System.out.println("Exception in string concat "+e);
+                }
+            }
         }
         //System.out.println("Players initialized");
         
@@ -389,26 +405,27 @@ public class AIEngine {
             }
         }
     }
+    
     //Have to implement
     private void play(){ 
-        if(false);
+        //if(false);
         //System.out.println("PLAY!!!");
-        /*if(target_in_sight()){
+        if(target_in_sight()){
             nxtmv = "SHOOT#";
             System.out.println(nxtmv);
-        }*/
+        }
         
         
        /*else if(players[my_no].is_shot){
            //Find who shot and hunt
        }*/
         
-        /*else if(players[my_no].health < 60 && lifepacks.size()>0){
+        else if(players[my_no].health < 60 && lifepacks.size()>0){
             g.bfs(players[my_no].location[0], players[my_no].location[1]);
             int mv = g.find_shortest_path_lp(lifepacks);
             nxtmv = move_lp(mv);
             System.out.println(nxtmv);
-        }*/        
+        }        
         else if(coinpiles.size()>0){
             int mv=0;
             //System.out.println("Graph");
@@ -441,46 +458,54 @@ public class AIEngine {
             nxtmv = move_lp(mv);
             System.out.println(nxtmv);
         }
+        else{
+            nxtmv = mv_center();
+            System.out.println(nxtmv);
+        }
     }
     
+    //Working (Has to remove dead players)
     private boolean target_in_sight(){
         boolean in_sight = false;
         Player me = players[my_no];
+        int xx,yy;
+        xx = me.location[0];
+        yy = me.location[1];
         switch(me.direction){
             case 0:
-                for(int i=me.location[1]-1;i>=0;i--){
-                    if(terrain[me.location[0]][i]==1||terrain[me.location[0]][i]==2)
+                for(int i=yy-1;i>=0;i--){
+                    if(terrain[xx][i]==1||terrain[xx][i]==2)
                         break;
-                    if(terrain[me.location[0]][i]==4){
+                    if(terrain[xx][i]==4){
                         in_sight = true;
                         break;
                     }
                 }
                 break;
             case 1:
-                for(int i=me.location[0]+1;i<ln;i++){
-                    if(terrain[i][me.location[1]]==1||terrain[i][me.location[1]]==2)
+                for(int i=xx+1;i<ln;i++){
+                    if(terrain[i][yy]==1||terrain[i][yy]==2)
                         break;
-                    if(terrain[i][me.location[1]]==4){
+                    if(terrain[i][yy]==4){
                         in_sight = true;
                         break;
                     }
                 }
                 break;
             case 2:
-                for(int i=me.location[1]+1;i<ht;i++){
-                    if(terrain[me.location[0]][i]==1||terrain[me.location[0]][i]==2)
+                for(int i=yy+1;i<ht;i++){
+                    if(terrain[xx][i]==1||terrain[xx][i]==2)
                         break;
-                    if(terrain[me.location[0]][i]==4){
+                    if(terrain[xx][i]==4){
                         in_sight = true;
                         break;
                     }
                 }
             case 3:
-               for(int i=me.location[0]-1;i>=0;i--){
-                    if(terrain[me.location[i]][1]==1||terrain[me.location[i]][1]==2)
+               for(int i=xx-1;i>=0;i--){
+                    if(terrain[i][yy]==1||terrain[i][yy]==2)
                         break;
-                    if(terrain[me.location[i]][1]==4){
+                    if(terrain[i][yy]==4){
                         in_sight = true;
                         break;
                     }
@@ -570,5 +595,44 @@ public class AIEngine {
             System.out.println(mv-(mv/ln)+","+mv/ln);
             return "NO#";
         }
+    }
+    
+    private String mv_center(){
+        Player me = players[my_no];
+        int xx,yy,loc;
+        xx = me.location[0];
+        yy = me.location[1];
+        g.bfs(xx, yy);
+        int mv = g.find_shortest_path();
+        
+        loc = yy*ln+xx;
+        
+        yy = mv/ln;
+        xx = mv%ln;
+        
+        if(g.adj_mat[mv][loc]){
+            if((mv/ln)<(loc/ln)){
+                return "UP#";                
+            }
+            else if((mv/ln)>(loc/ln)){
+                return "DOWN#";
+            }
+            else if(mv<loc){
+                return "LEFT#";
+            }
+            else
+                return "RIGHT#";
+        }
+        else if(mv == loc){
+            return "NO#";
+        }
+        else{
+            System.out.println("ERROR!!!");
+            System.out.println("mv: "+mv+" loc: "+loc);
+            System.out.println(me.location[0]+","+me.location[1]);
+            System.out.println(mv-(mv/ln)+","+mv/ln);
+            return "NO#";
+        }
+        
     }
 }

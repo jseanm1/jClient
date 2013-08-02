@@ -112,4 +112,51 @@ public class AlgoTest {
             return "UP#";
     }
      -------------------------------------------------------------------------*/
+    
+    /*
+     * -------------------------------------------------------------------------
+     boolean in_sight = false;
+        Player me = players[my_no];
+        switch(me.direction){
+            case 0:
+                for(int i=me.location[1]-1;i>=0;i--){
+                    if(terrain[me.location[0]][i]==1||terrain[me.location[0]][i]==2)
+                        break;
+                    if(terrain[me.location[0]][i]==4){
+                        in_sight = true;
+                        break;
+                    }
+                }
+                break;
+            case 1:
+                for(int i=me.location[0]+1;i<ln;i++){
+                    if(terrain[i][me.location[1]]==1||terrain[i][me.location[1]]==2)
+                        break;
+                    if(terrain[i][me.location[1]]==4){
+                        in_sight = true;
+                        break;
+                    }
+                }
+                break;
+            case 2:
+                for(int i=me.location[1]+1;i<ht;i++){
+                    if(terrain[me.location[0]][i]==1||terrain[me.location[0]][i]==2)
+                        break;
+                    if(terrain[me.location[0]][i]==4){
+                        in_sight = true;
+                        break;
+                    }
+                }
+            case 3:
+               for(int i=me.location[0]-1;i>=0;i--){
+                    if(terrain[me.location[i]][1]==1||terrain[me.location[i]][1]==2)
+                        break;
+                    if(terrain[me.location[i]][1]==4){
+                        in_sight = true;
+                        break;
+                    }
+                } 
+        }
+        return in_sight;
+     * -----------------------------------------------------------------------*/
 }

@@ -9,10 +9,12 @@ public class Player {
     int points;
     int health;
     boolean is_shot;
+    boolean is_dead;
     
     public Player(){
         location = new int [2];
         shot = 0;
+        is_dead = false;
     }
     
     public void set_health(int h){
