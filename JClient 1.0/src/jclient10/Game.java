@@ -37,7 +37,7 @@ public class Game {
         } catch (IOException ex) {
             //Logger.getLogger(Test1_1.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("Server not found!!!");
-            System.exit(5);
+            //System.exit(5);
         }  
     }
     
@@ -54,6 +54,20 @@ public class Game {
                 s = read.readLine();
                 read.close();
                 System.out.println(s);
+                
+                //Pass updates to GUI
+                /*
+                try{
+                    BufferedWriter write;
+                    Socket serversoc = new Socket("127.0.0.1", 10000);
+                    write = new BufferedWriter(new OutputStreamWriter(serversoc.getOutputStream()));
+
+                    write.write(s);
+                    write.flush();
+                    write.close();
+                }catch(Exception e){
+                    System.out.println("Exception writing to port X "+e);
+                }*/
                 
                 // Pass the update to the AIEngine and get the response
                 try{
@@ -80,8 +94,8 @@ public class Game {
                 
             }
            
-            i++;
-            if(i==3000) i=0;
+            //i++;
+            //if(i==3000) i=0;
         }
     }
 }

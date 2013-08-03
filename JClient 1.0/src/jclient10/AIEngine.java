@@ -458,13 +458,13 @@ public class AIEngine {
             nxtmv = move_lp(mv);
             System.out.println(nxtmv);
         }
-        else{
+        /*(else{
             nxtmv = mv_center();
             System.out.println(nxtmv);
-        }
+        }*/
     }
     
-    //Working (Has to remove dead players)
+    //Working 
     private boolean target_in_sight(){
         boolean in_sight = false;
         Player me = players[my_no];

@@ -6,18 +6,11 @@ public class Main {
     /**
      * @param args the command line arguments
      */
+    @SuppressWarnings("empty-statement")
     public static void main(String[] args) {
-//        Test1_1 test = new Test1_1();
-//        Test1_2 test = new Test1_2();
-//        Test1_3 test = new Test1_3();
         Game test = new Game();
-        test.run();
-//        CodeTest test = new CodeTest();
-//        test.test(" ");
-        
-                  
+        test.run();              
     }
-
 }
 
 
